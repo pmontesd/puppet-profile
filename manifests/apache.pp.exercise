@@ -1,0 +1,24 @@
+class profile::apache {
+  class { '::apache':
+    default_vhost => false,
+  }
+
+  $docroot = "/var/www/${facts['fqdn']}"
+
+  ::apache::vhost { "${facts[fqdn]}":
+    docroot => $docroot,
+    port    => 80,
+  }
+
+
+  file { "${docroot}/index.html":
+    ensure  => file,
+    content => 'Test page. This is a test'
+  }
+
+
+  Class['::apache']
+  -> Apache::Vhost["${facts['fqdn']}"]
+  ~> File["${docroot}/index.html"]
+
+}
